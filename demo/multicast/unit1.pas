@@ -137,7 +137,6 @@ begin
   sock := TBlockSocket.Create;
   try
     sock.Family := SF_IP4;
-    sock.CreateSocket();
     MyIPAddr := sock.ResolveName(sock.LocalName);
   finally
     sock.Free;
