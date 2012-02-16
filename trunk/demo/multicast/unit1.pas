@@ -5,7 +5,7 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   StdCtrls;
 
 type
@@ -14,7 +14,7 @@ type
 
   TForm1 = class(TForm)
     Button1: TButton;
-    SynEdit1: TSynEdit;
+    Memo1: TMemo;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
@@ -56,7 +56,7 @@ var
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  SynEdit1.Lines.Clear;
+  Memo1.Lines.Clear;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -117,14 +117,11 @@ procedure TUDPDaemon.AddLog;
 begin
   if Assigned(Form1) then
   begin
-    Form1.SynEdit1.Lines.BeginUpdate;
+    Form1.Memo1.Lines.BeginUpdate;
     try
-      Form1.SynEdit1.Lines.Add(LogData);
-      Form1.SynEdit1.CaretX := 0;
-      Form1.SynEdit1.CaretY := Form1.SynEdit1.Lines.Count;
-      Form1.SynEdit1.EnsureCursorPosVisible;
+      Form1.Memo1.Lines.Add(LogData);
     finally
-      Form1.SynEdit1.Lines.EndUpdate;
+      Form1.Memo1.Lines.EndUpdate;
     end;
   end;
   LogData := '';

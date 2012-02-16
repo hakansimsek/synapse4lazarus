@@ -5,7 +5,7 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, SynEdit, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   StdCtrls, ColorBox, Contnrs;
 
 type
@@ -16,7 +16,7 @@ type
     Button1: TButton;
     ColorBox1: TColorBox;
     Edit1: TEdit;
-    SynEdit1: TSynEdit;
+    Memo1: TMemo;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -63,7 +63,7 @@ type
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Edit1.Text := 'www.yahoo.com, w.y.c, www.google.com, www.google.com:8080';
-  SynEdit1.Lines.Clear;
+  Memo1.Lines.Clear;
   thList := TObjectList.Create(False);
 end;
 
@@ -112,20 +112,23 @@ var
   i: integer;
   th: TSockThread;
 begin
-  if Button1.Caption = 'Go' then begin
-    SynEdit1.Lines.Clear;
-    Button1.Caption:= 'Abort';
+  if Button1.Caption = 'Go' then
+  begin
+    Memo1.Lines.Clear;
+    Button1.Caption := 'Abort';
     GarbageCollection;
     thList.Add(TSockThread.Create(Edit1.Text));
-    SynEdit1.Lines.Add('Thread Count: ' + IntToStr(thList.Count));
-  end else begin
+    Memo1.Lines.Add('Thread Count: ' + IntToStr(thList.Count));
+  end
+  else
+  begin
     for i := 0 to thList.Count - 1 do
     begin
       th := TSockThread(thList[i]);
       th.HTTP.Sock.AbortSocket;
       th.Terminate;
     end;
-    Button1.Caption:= 'Go';
+    Button1.Caption := 'Go';
   end;
 end;
 
@@ -185,14 +188,11 @@ end;
 
 procedure TSockThread.AddLog;
 begin
-  Form1.SynEdit1.Lines.BeginUpdate;
+  Form1.Memo1.Lines.BeginUpdate;
   try
-    Form1.SynEdit1.Lines.Text := Form1.SynEdit1.Lines.Text + LogData + CRLF;
-    Form1.SynEdit1.CaretX := 0;
-    Form1.SynEdit1.CaretY := Form1.SynEdit1.Lines.Count;
-    Form1.SynEdit1.EnsureCursorPosVisible;
+    Form1.Memo1.Lines.Text := Form1.Memo1.Lines.Text + LogData + CRLF;
   finally
-    Form1.SynEdit1.Lines.EndUpdate;
+    Form1.Memo1.Lines.EndUpdate;
   end;
   LogData := '';
 end;
@@ -213,14 +213,14 @@ begin
   for i := 0 to Form1.thList.Count - 1 do
   begin
     SockThread := TSockThread(Form1.thList[i]);
-    b:= (SockThread <> Self) and not SockThread.DoneFlag;
+    b := (SockThread <> Self) and not SockThread.DoneFlag;
     b1 := b1 or b;
     b2 := b2 or (b and not SockThread.Terminated);
   end;
   if not b1 then
     Form1.ColorBox1.Selected := clGreen;
   if not b2 then
-    Form1.Button1.Caption:= 'Go';
+    Form1.Button1.Caption := 'Go';
 end;
 
 end.
