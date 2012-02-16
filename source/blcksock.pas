@@ -1124,10 +1124,10 @@ type
 {$IFNDEF CIL}
     {:Add this socket to given multicast group. You cannot use Multicasts in
      SOCKS mode!}
-    procedure AddMulticast(MCastIP:string);
+    procedure AddMulticast(const MCastIP: string; const Intf: string = '');
 
     {:Remove this socket from given multicast group.}
-    procedure DropMulticast(MCastIP:string);
+    procedure DropMulticast(const MCastIP: string; const Intf: string = '');
 {$ENDIF}
     {:All sended multicast datagrams is loopbacked to your interface too. (you
      can read your sended datas.) You can disable this feature by this function.
@@ -3603,7 +3603,7 @@ begin
 end;
 
 {$IFNDEF CIL}
-procedure TUDPBlockSocket.AddMulticast(MCastIP: string);
+procedure TUDPBlockSocket.AddMulticast(const MCastIP: AnsiString; const Intf: AnsiString = '');
 var
   Multicast: TIP_mreq;
   Multicast6: TIPv6_mreq;
@@ -3615,21 +3615,23 @@ begin
     ip6 := StrToIp6(MCastIP);
     for n := 0 to 15 do
       Multicast6.ipv6mr_multiaddr.u6_addr8[n] := Ip6[n];
-    Multicast6.ipv6mr_interface := 0;
+    Multicast6.ipv6mr_interface := StrToIntDef(Intf, 0);
     SockCheck(synsock.SetSockOpt(FSocket, IPPROTO_IPV6, IPV6_JOIN_GROUP,
       PAnsiChar(@Multicast6), SizeOf(Multicast6)));
   end
   else
   begin
-    Multicast.imr_multiaddr.S_addr := swapbytes(strtoip(MCastIP));
+    Multicast.imr_multiaddr.S_addr := synsock.inet_addr(PAnsiChar(MCastIP));
     Multicast.imr_interface.S_addr := INADDR_ANY;
+    if Intf <> '' then
+      Multicast.imr_interface.S_addr := synsock.inet_addr(PAnsiChar(Intf));
     SockCheck(synsock.SetSockOpt(FSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP,
       PAnsiChar(@Multicast), SizeOf(Multicast)));
   end;
   ExceptCheck;
 end;
 
-procedure TUDPBlockSocket.DropMulticast(MCastIP: string);
+procedure TUDPBlockSocket.DropMulticast(const MCastIP: AnsiString; const Intf: AnsiString = '');
 var
   Multicast: TIP_mreq;
   Multicast6: TIPv6_mreq;
@@ -3641,14 +3643,16 @@ begin
     ip6 := StrToIp6(MCastIP);
     for n := 0 to 15 do
       Multicast6.ipv6mr_multiaddr.u6_addr8[n] := Ip6[n];
-    Multicast6.ipv6mr_interface := 0;
+    Multicast6.ipv6mr_interface := StrToIntDef(Intf, 0);
     SockCheck(synsock.SetSockOpt(FSocket, IPPROTO_IPV6, IPV6_LEAVE_GROUP,
       PAnsiChar(@Multicast6), SizeOf(Multicast6)));
   end
   else
   begin
-    Multicast.imr_multiaddr.S_addr := swapbytes(strtoip(MCastIP));
+    Multicast.imr_multiaddr.S_addr := synsock.inet_addr(PAnsiChar(MCastIP));
     Multicast.imr_interface.S_addr := INADDR_ANY;
+    if Intf <> '' then
+      Multicast.imr_interface.S_addr := synsock.inet_addr(PAnsiChar(Intf));
     SockCheck(synsock.SetSockOpt(FSocket, IPPROTO_IP, IP_DROP_MEMBERSHIP,
       PAnsiChar(@Multicast), SizeOf(Multicast)));
   end;
